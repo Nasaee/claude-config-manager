@@ -1,0 +1,17 @@
+services:
+  claude-config-manager:
+    build: .
+    container_name: claude-config-manager
+    # แอปไม่มี auth — bind เฉพาะ 127.0.0.1 อย่าเปิดออก network
+    ports:
+      - "127.0.0.1:8888:8888"
+    environment:
+      - CLAUDE_HOME=/data/claude-home
+      # ~/.claude.json (user-scope MCP servers) เป็นไฟล์ sibling ของ ~/.claude
+      - CLAUDE_JSON=/data/claude-home.json
+    volumes:
+      - ${HOME}/.claude:/data/claude-home
+      # หมายเหตุ: ถ้าไฟล์นี้ยังไม่มีบน host ให้สร้างเป็นไฟล์ก่อน (echo '{}' > ~/.claude.json)
+      # ไม่งั้น Docker จะสร้างเป็น "โฟลเดอร์" แทนแล้วแอปอ่านไม่ได้
+      - ${HOME}/.claude.json:/data/claude-home.json
+    restart: unless-stopped
