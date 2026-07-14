@@ -6,12 +6,13 @@ services:
     ports:
       - "127.0.0.1:8888:8888"
     environment:
-      - CLAUDE_HOME=/data/claude-home
+      - CLAUDE_HOME=/data/host-home/.claude
       # ~/.claude.json (user-scope MCP servers) เป็นไฟล์ sibling ของ ~/.claude
-      - CLAUDE_JSON=/data/claude-home.json
+      - CLAUDE_JSON=/data/host-home/.claude.json
     volumes:
-      - ${HOME}/.claude:/data/claude-home
-      # หมายเหตุ: ถ้าไฟล์นี้ยังไม่มีบน host ให้สร้างเป็นไฟล์ก่อน (echo '{}' > ~/.claude.json)
-      # ไม่งั้น Docker จะสร้างเป็น "โฟลเดอร์" แทนแล้วแอปอ่านไม่ได้
-      - ${HOME}/.claude.json:/data/claude-home.json
+      # mount ทั้ง $HOME แทนการ bind-mount ไฟล์เดี่ยว — Docker Desktop for Mac
+      # จะ mount ไฟล์เดี่ยวค้าง (stale inode) เมื่อ host เขียนทับแบบ atomic
+      # rename (Claude Code ทำแบบนี้กับ ~/.claude.json) ต้อง mount เป็นโฟลเดอร์
+      # เท่านั้นถึงจะตามการ rename ทัน
+      - ${HOME}:/data/host-home
     restart: unless-stopped
